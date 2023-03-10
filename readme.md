@@ -54,9 +54,28 @@
     }
 
     or use this as custom way
+
+    basic
     add this above parse func and remove start_urls from parse func
 
     def start_requests(self):
         scrapy.Request(url=link_you_want, callback=self.parse, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'})
 
     if you use parse func in a loop you also need to add the headers to the parse from where you are calling for loop, not at the top parse func
+
+    crawl
+        user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'
+
+    def start_requests(self):
+        yield scrapy.Request(url='https://subslikescript.com/movies_letter-X', headers={'user-agent': self.user_agent})
+
+    rules = (
+        Rule(LinkExtractor(restrict_xpaths=(
+            "//ul[@class=\"scripts-list\"]/a")), callback="parse_item", follow=True, process_request='set_user_agent'),
+        Rule(LinkExtractor(restrict_xpaths=(
+            "(//a[@rel=\"next\"])[1]")), process_request='set_user_agent'),
+    )
+
+    def set_user_agent(self, request, spider):
+        request.headers['User-Agent'] = self.user_agent
+        return
