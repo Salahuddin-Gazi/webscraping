@@ -45,7 +45,7 @@
     if an output file
     scrapy crawl audible -o [add custome location if you want like ./..../]file_name.json or .csv
 
-# Change user agent from settings of the project folder
+## Change user agent from settings of the project folder
 
     DEFAULT_REQUEST_HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -79,3 +79,61 @@
     def set_user_agent(self, request, spider):
         request.headers['User-Agent'] = self.user_agent
         return
+
+# SQL
+
+### 1 To open database
+
+    .OPEN database_name.db
+
+### 2 Create Table
+
+    CREATE TABLE table_name(
+        id INT,
+        name TEXT,
+    );
+
+### 3 Show Schema
+
+    after opening the database #1
+    .schema table_name
+
+### 4 Show table
+
+    SELECT * from table_name
+
+# Splash
+
+    pip install scrapy-splash
+
+1. Add the Splash server address to settings.py of your Scrapy project like this:
+
+   SPLASH_URL = 'http://localhost:8050/'
+
+2. Enable the Splash middleware by adding it to DOWNLOADER_MIDDLEWARES in your settings.py file and changing HttpCompressionMiddleware priority:
+
+   DOWNLOADER_MIDDLEWARES = {
+   'scrapy_splash.SplashCookiesMiddleware': 723,
+   'scrapy_splash.SplashMiddleware': 725,
+   'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
+   }
+
+   Order 723 is just before HttpProxyMiddleware (750) in default scrapy settings.
+
+   HttpCompressionMiddleware priority should be changed in order to allow advanced response processing; see scrapy/scrapy#1895 for details.
+
+3. Enable SplashDeduplicateArgsMiddleware by adding it to SPIDER_MIDDLEWARES in your settings.py:
+
+   SPIDER_MIDDLEWARES = {
+   'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
+   }
+
+# Docker
+
+#### to install splash
+
+    docker pull scrapinghub/splash
+
+#### run splash on a browser
+
+    docker run -it -p 8050:8050 scrapinghub/splash

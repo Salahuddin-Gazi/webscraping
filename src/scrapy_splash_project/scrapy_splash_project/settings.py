@@ -1,4 +1,4 @@
-# Scrapy settings for subs_like_script project
+# Scrapy settings for scrapy_splash_project project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -7,14 +7,14 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = "subs_like_script"
+BOT_NAME = "scrapy_splash_project"
 
-SPIDER_MODULES = ["subs_like_script.spiders"]
-NEWSPIDER_MODULE = "subs_like_script.spiders"
+SPIDER_MODULES = ["scrapy_splash_project.spiders"]
+NEWSPIDER_MODULE = "scrapy_splash_project.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-# USER_AGENT = "subs_like_script (+http://www.yourdomain.com)"
+# USER_AGENT = "scrapy_splash_project (+http://www.yourdomain.com)"
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
@@ -45,14 +45,24 @@ ROBOTSTXT_OBEY = True
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 # SPIDER_MIDDLEWARES = {
-#    "subs_like_script.middlewares.SubsLikeScriptSpiderMiddleware": 543,
+#    "scrapy_splash_project.middlewares.ScrapySplashProjectSpiderMiddleware": 543,
 # }
+
+SPIDER_MIDDLEWARES = {
+    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
+}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 # DOWNLOADER_MIDDLEWARES = {
-#    "subs_like_script.middlewares.SubsLikeScriptDownloaderMiddleware": 543,
+#    "scrapy_splash_project.middlewares.ScrapySplashProjectDownloaderMiddleware": 543,
 # }
+
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy_splash.SplashCookiesMiddleware': 723,
+    'scrapy_splash.SplashMiddleware': 725,
+    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -62,10 +72,9 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-ITEM_PIPELINES = {
-    # "subs_like_script.pipelines.SubsLikeScriptPipeline": 300,
-    "subs_like_script.pipelines.SQLitePipeLine": 300,
-}
+# ITEM_PIPELINES = {
+#    "scrapy_splash_project.pipelines.ScrapySplashProjectPipeline": 300,
+# }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
@@ -92,3 +101,4 @@ ITEM_PIPELINES = {
 REQUEST_FINGERPRINTER_IMPLEMENTATION = "2.7"
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
+SPLASH_URL = 'http://localhost:8050/'
