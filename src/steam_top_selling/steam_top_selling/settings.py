@@ -1,4 +1,4 @@
-# Scrapy settings for scrapy_splash_project project
+# Scrapy settings for steam_top_selling project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -7,17 +7,37 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = "scrapy_splash_project"
+BOT_NAME = "steam_top_selling"
 
-SPIDER_MODULES = ["scrapy_splash_project.spiders"]
-NEWSPIDER_MODULE = "scrapy_splash_project.spiders"
+SPIDER_MODULES = ["steam_top_selling.spiders"]
+NEWSPIDER_MODULE = "steam_top_selling.spiders"
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-# USER_AGENT = "scrapy_splash_project (+http://www.yourdomain.com)"
+# USER_AGENT = "steam_top_selling (+http://www.yourdomain.com)"
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
+
+# Splash
+SPLASH_URL = 'http://localhost:8050'
+
+DOWNLOADER_MIDDLEWARES = {
+    'scrapy_splash.SplashCookiesMiddleware': 723,
+    'scrapy_splash.SplashMiddleware': 725,
+    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
+}
+
+SPIDER_MIDDLEWARES = {
+    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
+}
+
+DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
+
+HTTPCACHE_STORAGE = 'scrapy_splash.SplashAwareFSCacheStorage'
+
+# CLOSESPIDER_ITEMCOUNT = 100
+# EXTENSIONS = {'scrapy.extensions.closespider.CloseSpider': 1}
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
@@ -45,28 +65,14 @@ ROBOTSTXT_OBEY = True
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 # SPIDER_MIDDLEWARES = {
-#    "scrapy_splash_project.middlewares.ScrapySplashProjectSpiderMiddleware": 543,
+#    "steam_top_selling.middlewares.SteamTopSellingSpiderMiddleware": 543,
 # }
-
-SPIDER_MIDDLEWARES = {
-    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
-}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 # DOWNLOADER_MIDDLEWARES = {
-#    "scrapy_splash_project.middlewares.ScrapySplashProjectDownloaderMiddleware": 543,
+#    "steam_top_selling.middlewares.SteamTopSellingDownloaderMiddleware": 543,
 # }
-
-DOWNLOADER_MIDDLEWARES = {
-    'scrapy_splash.SplashCookiesMiddleware': 723,
-    'scrapy_splash.SplashMiddleware': 725,
-    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
-}
-
-DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
-
-SPLASH_URL = 'http://localhost:8050/'
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -77,7 +83,7 @@ SPLASH_URL = 'http://localhost:8050/'
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 # ITEM_PIPELINES = {
-#    "scrapy_splash_project.pipelines.ScrapySplashProjectPipeline": 300,
+#     "steam_top_selling.pipelines.SteamTopSellingPipeline": 10,
 # }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

@@ -2,10 +2,15 @@ import scrapy
 import json
 import os
 from scrapy.selector import Selector
+from scrapy_splash import SplashRequest
 
 
 class ListingsSpider(scrapy.Spider):
     name = "listings"
+
+    http_user = 'user'
+    http_pass = 'userpass'
+
     allowed_domains = ["www.centris.ca"]
     # start_urls = ["https://www.centris.ca/"]
 
@@ -14,6 +19,7 @@ class ListingsSpider(scrapy.Spider):
     position = {
         "startPosition": 0
     }
+
     query = {
         "query": {
             "UseGeographyShapes": 0,
@@ -45,7 +51,7 @@ class ListingsSpider(scrapy.Spider):
                 },
                 {
                     "fieldId": "RentPrice",
-                    "value": 1500,
+                    "value": 500,
                     "fieldConditionId": "ForRent",
                     "valueConditionId": ""
                 }
@@ -53,7 +59,22 @@ class ListingsSpider(scrapy.Spider):
         },
         "isHomePage": True
     }
-    page = 1
+
+    script = '''
+    function main(splash, args)
+        splash:on_request(
+            function(request) 
+                if request.url:find('css') then request.abort()
+                end
+            end
+        )
+        splash.images_enabled = false
+        splash.js_enabled = false
+        assert(splash:go(args.url))
+        assert(splash:wait(0.5))
+        return splash:html()
+    end
+    '''
 
     def start_requests(self):
 
@@ -83,10 +104,6 @@ class ListingsSpider(scrapy.Spider):
 
     def parse(self, response):
         resp_dict = json.loads(response.body)
-        # print('<-------------->')
-
-        # print(resp_dict["d"]["Result"]["html"])
-        # print(resp_dict.get("d").get("Result").get("html"))
 
         html = resp_dict.get("d").get("Result").get("html")
         count = resp_dict.get("d").get("Result").get("count")
@@ -117,18 +134,37 @@ class ListingsSpider(scrapy.Spider):
             url = listing.xpath(
                 './/a[@class="property-thumbnail-summary-link"]/@href').get()
 
-            yield {
-                'page': self.page,
-                'category': category,
-                'city': city,
-                'price': price,
-                'url': url
-            }
-        self.page += 1
+            abs_url = "https://www.centris.ca"+url
+            print('<------------------->')
+            print(abs_url)
+            # yield {
+            #     'category': category,
+            #     'city': city,
+            #     'price': price,
+            #     'url': abs_url
+            # }
+
+            yield SplashRequest(
+                url=abs_url,
+                endpoint="execute",
+                callback=self.parse_summary,
+                args={
+                    'lua_source': self.script
+                },
+                meta={
+                    'cat': category,
+                    'pri': price,
+                    'city': city,
+                    'url': abs_url
+                }
+            )
+
         if self.position["startPosition"] <= count:
             self.position["startPosition"] += inc_number
             # print('<---------------->')
             # print(self.position["startPosition"])
+            print('<------------------->')
+            print(self.position["startPosition"])
             yield scrapy.Request(
                 url="https://www.centris.ca/Property/GetInscriptions",
                 method="POST",
@@ -139,3 +175,39 @@ class ListingsSpider(scrapy.Spider):
                 },
                 callback=self.parse,
             )
+
+    def parse_summary(self, response):
+        # address = ' '.join(response.xpath(
+        #     '//h2[@itemprop="address"]/font/font/text()').getall())
+        xpath_fn = response.xpath
+        address = xpath_fn(
+            '//h2[@itemprop="address"]//text()').get()
+
+        # desc = xpath_fn(
+        #     '//div[@itemprop="description"]//text()')
+
+        # description = desc.get().strip() if desc else ''
+
+        description = xpath_fn(
+            'normalize-space(//div[@itemprop="description"]//text())').get()
+        # features_list = xpath_fn(
+        #     '//div[contains(@class, "description")]//div[contains(@class, "teaser")]//font/font').getall()[3:]
+        # features = ' '.join(features_list)
+        features = xpath_fn(
+            '//div[contains(@class, "teaser")]//span[@class="match-score-text"]//text()').get()
+
+        metaData = response.request.meta
+        category = metaData['cat']
+        price = metaData['pri']
+        city = metaData['city']
+        url = metaData['url']
+
+        yield {
+            'address': address,
+            'category': category,
+            'description': description,
+            'features': features,
+            'city': city,
+            'price': price,
+            'url': url
+        }

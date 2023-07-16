@@ -82,29 +82,27 @@
 
 # SQL
 
-### 1 To open database
-
+    <!-- To open database -->
     .OPEN database_name.db
 
-### 2 Create Table
-
+    <!-- Create Table -->
     CREATE TABLE table_name(
         id INT,
         name TEXT,
     );
 
-### 3 Show Schema
-
+    <!-- Show Schema -->
     after opening the database #1
     .schema table_name
 
-### 4 Show table
-
+    <!-- Show table -->
     SELECT * from table_name
 
 # Splash
 
     pip install scrapy-splash
+
+Taken from ["https://github.com/scrapy-plugins/scrapy-splash"]
 
 1. Add the Splash server address to settings.py of your Scrapy project like this:
 
@@ -118,15 +116,36 @@
    'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
    }
 
-   Order 723 is just before HttpProxyMiddleware (750) in default scrapy settings.
-
-   HttpCompressionMiddleware priority should be changed in order to allow advanced response processing; see scrapy/scrapy#1895 for details.
-
 3. Enable SplashDeduplicateArgsMiddleware by adding it to SPIDER_MIDDLEWARES in your settings.py:
 
    SPIDER_MIDDLEWARES = {
    'scrapy_splash.SplashDeduplicateArgsMiddleware': 100,
    }
+
+4. Set a custom DUPEFILTER_CLASS:
+
+   DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'
+
+#### Check with Scrapy
+
+    <!-- Check it is connected or not use scrapy shell -->
+    scrapy shell
+    fetch('http://localhost:8050')
+
+    <!-- check with url -->
+    fetch('http://localhost:8050/render.html?url=https...')
+
+# Aquarium
+
+It's like a cluster of splashes [3]
+liks: ["https://github.com/TeamHG-Memex/aquarium"]
+
+1. Install [in linux] --> cd Documents
+   pip install cookiecutter
+2. Then generate a folder with config files:
+   cookiecutter gh:TeamHG-Memex/aquarium
+3. launch aquarium at the ./aquriam location
+   docker-compose up
 
 # Docker
 
@@ -134,6 +153,21 @@
 
     docker pull scrapinghub/splash
 
-#### run splash on a browser
+    for linux // don't know which one, try all of them 🤣🤣
+    sudo service docker start
+    systemctl enable docker
+    systemctl start docker
+    sudo dockerd
+
+    <!-- to stop it -->
+    sudo systemctl stop docker && sudo systemctl stop docker.socket
+
+    <!-- to check all container -->
+    docker container ls
+
+    <!-- run splash on a browser -->
 
     docker run -it -p 8050:8050 scrapinghub/splash
+
+    <!-- for high memory usage restart it self -->
+    docker run -it --restart always -p 8050:8050 scrapinghub/splash
